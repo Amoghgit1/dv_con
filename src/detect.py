@@ -3,6 +3,7 @@ import torchvision
 from torchvision.models.detection import ssdlite320_mobilenet_v3_large
 from torchvision.transforms import functional as F
 from PIL import Image
+import os
 
 COCO_LABELS = [
     '__background__', 'person', 'bicycle', 'car', 'motorcycle', 'airplane',
@@ -57,9 +58,12 @@ def detect_objects(image_path, confidence_threshold=0.4):
     return results
 
 if __name__ == "__main__":
-    # Quick test — download any image and test here
-    test_image = "test.jpg"
-    detections = detect_objects(test_image)
-    print(f"Detected {len(detections)} objects:")
-    for d in detections:
-        print(f"  {d['label']} ({d['confidence']})")
+    test_image = "../test_images/kitchen.jpg"
+    if not os.path.exists(test_image):
+        print(f"Test image not found: {test_image}")
+        print("Please add images to the test_images/ folder first.")
+    else:
+        detections = detect_objects(test_image)
+        print(f"Detected {len(detections)} objects:")
+        for d in detections:
+            print(f"  {d['label']} ({d['confidence']})")

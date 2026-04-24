@@ -1,5 +1,7 @@
 venv/
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
+*.npy
+*.pth
+*.onnx
+.env
+test_images/
