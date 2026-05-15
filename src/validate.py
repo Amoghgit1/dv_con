@@ -5,11 +5,21 @@ import os
 
 # Ground truth using correct task IDs
 GROUND_TRUTH = [
-    {"image": "test.jpg", "task_id": 0, "ground_truth": "wine glass"},
-    {"image": "test.jpg", "task_id": 1, "ground_truth": "knife"},
-    {"image": "test.jpg", "task_id": 2, "ground_truth": "chair"},
+    {"image": "../test_images/kitchen2.jpg",    "task_id": 0,  "ground_truth": "wine glass"},
+    {"image": "../test_images/knife.jpg",        "task_id": 1,  "ground_truth": "scissors"},
+    {"image": "../test_images/living_room2.jpg", "task_id": 2, "ground_truth": "couch"},
+    {"image": "../test_images/clock.jpg",        "task_id": 3,  "ground_truth": "clock"},
+    {"image": "../test_images/kitchen2.jpg",     "task_id": 4,  "ground_truth": "wine glass"},
+    {"image": "../test_images/kitchen.jpg",      "task_id": 5,  "ground_truth": "fork"},
+    {"image": "../test_images/phone.jpg",        "task_id": 6,  "ground_truth": "cell phone"},#person
+    {"image": "../test_images/kitchen2.jpg",     "task_id": 7,  "ground_truth": "book"},
+    {"image": "../test_images/travel.jpg",       "task_id": 8,  "ground_truth": "suitcase"},
+    {"image": "../test_images/sports2.jpg",      "task_id": 9,  "ground_truth": "sports ball"},
+    {"image": "../test_images/kitchen.jpg",      "task_id": 10, "ground_truth": "fork"},
+    {"image": "../test_images/phone.jpg",        "task_id": 11, "ground_truth": "cell phone"},
+    {"image": "../test_images/bedroom.jpg",      "task_id": 12, "ground_truth": "bed"},
+    {"image": "../test_images/desk2.jpg",        "task_id": 13, "ground_truth": "laptop"},
 ]
-
 def validate():
     correct = 0
     results = []

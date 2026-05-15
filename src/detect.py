@@ -56,7 +56,7 @@ def detect_objects(image_path, confidence_threshold=0.4):
         })
 
     return results
-
+'''
 if __name__ == "__main__":
     test_image = "../test_images/kitchen.jpg"
     if not os.path.exists(test_image):
@@ -66,4 +66,32 @@ if __name__ == "__main__":
         detections = detect_objects(test_image)
         print(f"Detected {len(detections)} objects:")
         for d in detections:
-            print(f"  {d['label']} ({d['confidence']})")
+            print(f"  {d['label']} ({d['confidence']})") 
+'''
+if __name__ == "__main__":
+    import os
+    images = [
+        "../test_images/kitchen.jpg",
+        "../test_images/kitchen2.jpg",
+        "../test_images/dining.jpg",
+        "../test_images/living_room.jpg",
+        "../test_images/living_room2.jpg",
+        "../test_images/desk.jpg",
+        "../test_images/desk2.jpg",
+        "../test_images/bedroom.jpg",
+        "../test_images/sports.jpg",
+        "../test_images/travel.jpg",
+        "../test_images/phone.jpg",
+        "../test_images/outdoor.jpg",
+        "../test_images/knife.jpg",
+        "../test_images/clock.jpg",
+        "../test_images/sports2.jpg",
+    ]
+    for img in images:
+        if os.path.exists(img):
+            print(f"\n--- {img} ---")
+            detections = detect_objects(img)
+            for d in detections:
+                print(f"  {d['label']} ({d['confidence']})")
+        else:
+            print(f"\n--- {img} --- NOT FOUND")
