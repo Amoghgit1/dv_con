@@ -83,9 +83,9 @@ if __name__ == "__main__":
         "../test_images/travel.jpg",
         "../test_images/phone.jpg",
         "../test_images/outdoor.jpg",
-        "../test_images/knife.jpg",
         "../test_images/clock.jpg",
         "../test_images/sports2.jpg",
+        "../test_images/knife2.png",
     ]
     for img in images:
         if os.path.exists(img):

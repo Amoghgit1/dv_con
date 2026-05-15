@@ -6,12 +6,12 @@ import os
 # Ground truth using correct task IDs
 GROUND_TRUTH = [
     {"image": "../test_images/kitchen2.jpg",    "task_id": 0,  "ground_truth": "wine glass"},
-    {"image": "../test_images/knife.jpg",        "task_id": 1,  "ground_truth": "scissors"},
+    {"image": "../test_images/knife2.png",       "task_id": 1,  "ground_truth": "scissors"},
     {"image": "../test_images/living_room2.jpg", "task_id": 2, "ground_truth": "couch"},
     {"image": "../test_images/clock.jpg",        "task_id": 3,  "ground_truth": "clock"},
     {"image": "../test_images/kitchen2.jpg",     "task_id": 4,  "ground_truth": "wine glass"},
     {"image": "../test_images/kitchen.jpg",      "task_id": 5,  "ground_truth": "fork"},
-    {"image": "../test_images/phone.jpg",        "task_id": 6,  "ground_truth": "cell phone"},#person
+    {"image": "../test_images/phone.jpg",        "task_id": 6,  "ground_truth": "person"},#cellphone
     {"image": "../test_images/kitchen2.jpg",     "task_id": 7,  "ground_truth": "book"},
     {"image": "../test_images/travel.jpg",       "task_id": 8,  "ground_truth": "suitcase"},
     {"image": "../test_images/sports2.jpg",      "task_id": 9,  "ground_truth": "sports ball"},

@@ -3,7 +3,11 @@ from encode import get_boost, TASKS
 
 ALPHA = 0.65   # task relevance weight (matches uploaded file)
 BETA  = 0.35   # detection confidence weight (matches uploaded file)
+
 IGNORE_LABELS = {'person', 'dining table', 'N/A'}
+
+IGNORE_LABELS = {'person', 'dining table','cell phone' ,'scissors','N/A'}
+
 def cosine_similarity(a, b):
     return float(np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b) + 1e-8))
 
