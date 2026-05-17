@@ -74,18 +74,18 @@ if __name__ == "__main__":
         "../test_images/kitchen.jpg",
         "../test_images/kitchen2.jpg",
         "../test_images/dining.jpg",
-        "../test_images/living_room.jpg",
         "../test_images/living_room2.jpg",
-        "../test_images/desk.jpg",
         "../test_images/desk2.jpg",
         "../test_images/bedroom.jpg",
-        "../test_images/sports.jpg",
         "../test_images/travel.jpg",
         "../test_images/phone.jpg",
         "../test_images/outdoor.jpg",
         "../test_images/clock.jpg",
         "../test_images/sports2.jpg",
         "../test_images/knife2.png",
+        "../test_images/book6.jpg",
+        
+        
     ]
     for img in images:
         if os.path.exists(img):

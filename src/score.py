@@ -1,25 +1,15 @@
 import numpy as np
 from encode import get_boost, TASKS
 
-ALPHA = 0.65   # task relevance weight (matches uploaded file)
-BETA  = 0.35   # detection confidence weight (matches uploaded file)
+ALPHA = 0.65
+BETA  = 0.35
 
-IGNORE_LABELS = {'person', 'dining table', 'N/A'}
-
-IGNORE_LABELS = {'person', 'dining table','cell phone' ,'scissors','N/A'}
+IGNORE_LABELS = { 'dining table'}
 
 def cosine_similarity(a, b):
     return float(np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b) + 1e-8))
 
 def compute_scores(detections, task_id, task_embeddings, label_embeddings):
-    """
-    detections      : list of dicts from detect.py
-    task_id         : int 0-13
-    task_embeddings : dict {task_name -> embedding}
-    label_embeddings: dict {label -> embedding}
-
-    Returns detections sorted by final score, highest first.
-    """
     task_name = TASKS[task_id]["name"]
 
     if task_name not in task_embeddings:
@@ -30,9 +20,15 @@ def compute_scores(detections, task_id, task_embeddings, label_embeddings):
 
     for det in detections:
         label = det['label']
+
+        # Skip irrelevant objects
+        if label.lower() in IGNORE_LABELS:
+            continue
+
         if label not in label_embeddings:
             continue
 
+        # rest of code stays exactly the same...
         label_emb = label_embeddings[label]
 
         # CLIP cosine similarity (normalized to 0-1)
@@ -41,9 +37,14 @@ def compute_scores(detections, task_id, task_embeddings, label_embeddings):
 
         # Domain knowledge boost from preferred/keywords
         boost = get_boost(label, task_id)
+        # Penalty for generic objects that dominate unfairly
+        GENERIC_PENALTY = {'person': 0.5, 'dining table': 0.6}
 
-        # Combined task relevance
-        task_relevance = min(clip_score + boost, 1.0)
+        # Apply penalty if applicable
+        penalty = GENERIC_PENALTY.get(label.lower(), 1.0)
+        task_relevance = min((clip_score + boost) * penalty, 1.0)
+
+        
 
         # Final score
         final_score = ALPHA * task_relevance + BETA * det['confidence']

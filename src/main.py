@@ -26,20 +26,20 @@ if __name__ == "__main__":
     import os
 
     test_cases = [
-        ("../test_images/kitchen.jpg",     0),   # Serve wine
-        ("../test_images/kitchen.jpg",     1),   # Cut food
-        ("../test_images/living_room.jpg", 2),   # Sit down
-        ("../test_images/living_room.jpg", 3),   # Look at time
-        ("../test_images/kitchen.jpg",     4),   # Drink something
-        ("../test_images/kitchen.jpg",     5),   # Eat something
-        ("../test_images/living_room.jpg", 6),   # Make a phone call
-        ("../test_images/desk.jpg",        7),   # Read
-        ("../test_images/bedroom.jpg",     8),   # Travel
-        ("../test_images/outdoor.jpg",     9),   # Play sports
-        ("../test_images/kitchen.jpg",    10),   # Cook food
-        ("../test_images/living_room.jpg",11),   # Take a photo
-        ("../test_images/bedroom.jpg",    12),   # Sleep
-        ("../test_images/desk.jpg",       13),   # Work at desk
+        ("../test_images/kitchen2.jpg",    0),   # Serve wine
+        ("../test_images/knife2.png",        1),   # Cut food
+        ("../test_images/living_room2.jpg", 2),   # Sit down
+        ("../test_images/clock.jpg",        3),   # Look at the time
+        ("../test_images/kitchen2.jpg",     4),   # Drink something
+        ("../test_images/kitchen.jpg",      5),   # Eat something
+        ("../test_images/phone.jpg",        6),   # Make a phone call
+        ("../test_images/book6.jpg",         7),   # Read
+        ("../test_images/travel.jpg",       8),   # Travel
+        ("../test_images/sports2.jpg",      9),   # Play sports
+        ("../test_images/kitchen.jpg",     10),   # Cook food
+        ("../test_images/phone.jpg",       11),   # Take a photo
+        ("../test_images/bedroom.jpg",     12),   # Sleep
+        ("../test_images/desk2.jpg",       13),   # Work at desk
     ]
 
     for image_path, task_id in test_cases:
