@@ -2,7 +2,7 @@
 `timescale 1 ns / 1 ps
 
 	module affinity_scorer #
-	(
+		(
 		// Users to add parameters here
 
 		// User parameters ends
