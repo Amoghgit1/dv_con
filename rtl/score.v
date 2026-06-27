@@ -22,13 +22,17 @@ module score(
     reg rel_data_valid;
     
     always@(posedge clk)begin
-        if(!reset)begin
+        if(reset)begin
             clip_score<=0;
+            clip_data_valid<=0;
         end
         else begin
-            clip_score<=(dot+1)>>1;
+            if(i_data_valid)begin
+            clip_score<=(dot+32'd16384)>>1;
+            end
+            clip_data_valid<=i_data_valid;
         end
-        clip_data_valid<=i_data_valid;
+        
         
     end
     
@@ -40,25 +44,26 @@ module score(
             relevance_temp=(clip_score+boost);
         end
     end
+    
      always@(posedge clk)begin
-        if(relevance_temp > 1000)
-        relevance <= 1000;
-        else if(relevance_temp < 0)
+    if(relevance_temp > 32'sd16384)
+        relevance <= 32'sd16384;
+    else if(relevance_temp < 0)
         relevance <= 0;
-        else
+    else
         relevance <= relevance_temp;
-        
-        rel_data_valid<=clip_data_valid;
-        
-     end
+    
+    rel_data_valid<=clip_data_valid;
+end
      
      always@(posedge clk)begin
-        if(!reset)begin
+        if(reset)begin
                 final_score<=0;
         end
         else begin
-            final_score <=(650*relevance +350*confidence)/1000;
-        end
+        if(rel_data_valid)begin
+            final_score <=(663*relevance +358*confidence)>>>10;
+        end end
         
         o_data_valid<=rel_data_valid;
      end
