@@ -1,13 +1,13 @@
 `timescale 1ns / 1ps
 module control#(
     parameter OBJ_CNT_WIDTH = 16,
-    parameter EMB_DIM=512
+    parameter EMB_DIM=8//512
 )(
     input clk,
     input reset,
     
     input start,
-    input [15:0] n_objects,
+    input [OBJ_CNT_WIDTH -1 :0] n_objects,
     input emd,
     
     input mac_done,
@@ -17,13 +17,14 @@ module control#(
     output reg  mac_en,
     output reg  score_en,
     output reg  max_en,
-    output reg [2:0]state,next,
+     
     output reg [OBJ_CNT_WIDTH-1:0] obj_out,   // expose the counter
     output reg done
     );
-    
+    reg [2:0]state,next;
     
     reg [OBJ_CNT_WIDTH-1:0]obj;
+    
     localparam IDLE= 3'd0,
                LOAD= 3'd1,
                MAC= 3'd2,
@@ -32,7 +33,7 @@ module control#(
                CHECK= 3'd5;
      always@(posedge clk)
      begin
-     if(!reset)begin
+     if(reset)begin
         state<=IDLE;
      end else 
         state<=next;
@@ -66,7 +67,7 @@ module control#(
     wire enter_max   = (state != MAX)   && (next == MAX);
 
     always @(posedge clk) begin
-        if (!reset) begin
+        if (reset) begin
             mac_en   <= 1'b0;
             score_en <= 1'b0;
             max_en   <= 1'b0;
@@ -78,7 +79,7 @@ module control#(
     end
     
        always @(posedge clk) begin
-        if (!reset) begin
+        if (reset) begin
             obj  <= {OBJ_CNT_WIDTH{1'b0}};
             done <= 1'b0;
         end else begin
@@ -91,4 +92,21 @@ module control#(
             done <= (state == CHECK) && (next == IDLE);
         end
     end
+    always @(posedge clk) begin
+    obj_out <= obj;
+end
+    always @(posedge clk)
+begin
+    if(start)
+        $display("START seen at %t", $time);
+end
+
+    always @(posedge clk)
+begin
+    $display("t=%0t reset=%b start=%b state=%0d next=%0d",
+             $time, reset, start, state, next);
+end
+initial begin
+    $display("CONTROL V2");
+end
 endmodule
