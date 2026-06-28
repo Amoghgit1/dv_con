@@ -195,7 +195,27 @@ module axi_tb();
         $dumpfile("axi_tb.vcd");
         $dumpvars(0, axi_tb);
     end
-
+    
+    integer pass_cnt = 0;
+    integer fail_cnt = 0;
+    
+    task automatic check;
+    
+    input [256*8-1:0] name;
+    input condition;
+    
+    begin
+        if(condition) begin
+            pass_cnt = pass_cnt + 1;
+            $display("[PASS] %0s",name);
+        end
+        else begin
+            fail_cnt = fail_cnt + 1;
+            $display("[FAIL] %0s",name);
+        end
+    end
+    
+    endtask
     // ─── AXI4 Write Task (separate AW and W, then wait B) ────────────────
     task axi_write;
         input [ADDR_W-1:0]   addr;
@@ -285,7 +305,7 @@ module axi_tb();
     //localparam [31:0] OBJ1_WORD1 = {8'hE0, 8'd2, 8'hFB, 8'd33};
 
     // ─── Monitoring ───────────────────────────────────────────────────────
-    reg [2:0] prev_fsm_state;
+    /*reg [2:0] prev_fsm_state;
     always @(posedge clk) begin
         if (resetn) begin
             prev_fsm_state <= dut.core.FSM.state;
@@ -299,8 +319,8 @@ module axi_tb();
                     dut.core.FSM.mac_en,
                     dut.core.FSM.done);
         end
-    end
-    always @(posedge clk) begin
+    end*/
+    /*always @(posedge clk) begin
     if (dut.core.mac_done)
         $display("MAC DONE @ %0t", $time);
 
@@ -312,7 +332,7 @@ module axi_tb();
 
     if (dut.core.done)
         $display("FSM DONE @ %0t", $time);
-end
+end*/
     // ─── Result regs ──────────────────────────────────────────────────────
     reg [DATA_W-1:0] rb_done, rb_score, rb_object;
     integer          timeout;
@@ -332,41 +352,50 @@ end
         resetn = 1'b1;
         repeat(10) @(posedge clk);
 
-        $display("==========================================================");
-        $display(" DVCon India 2026 - Stage 2B - AXI4 Full Testbench");
-        $display("==========================================================");
-
+        $display("");
+        $display("============================================================");
+        $display("        DVCon INDIA 2026 - RTL Verification");
+        $display("------------------------------------------------------------");
+        $display(" Accelerator : Task-Aware Affinity Scorer");
+        $display(" Interface   : AXI4-Full");
+        $display(" Clock       : 100 MHz");
+        $display(" EMB_DIM     : %0d",EMB_DIM);
+        $display("============================================================");
+        $display("");
+        
         // ── Step 1: Write task embedding ──────────────────────────────────
         // task_emb[3:0] at word 4 (0x10), all 4 byte lanes
         // task_emb[7:4] at word 5 (0x14), all 4 byte lanes
-        $display("[TB] Step 1: Writing task embedding...");
+        $display("[TC1] Load task embedding");
+        
         axi_write(9'h010, TASK_WORD0, 4'hF);
         axi_write(9'h014, TASK_WORD1, 4'hF);
-
+        check("Task embedding loaded",1'b1);
         // ── Step 2: Write object 0 label embedding ────────────────────────
         // label_emb[3:0] at word 6 (0x18), label_emb[7:4] at word 7 (0x1C)
         $display("[TB] Step 2: Writing object 0 (wine glass) label embedding...");
         axi_write(9'h018, OBJ0_WORD0, 4'hF);
         axi_write(9'h01C, OBJ0_WORD1, 4'hF);
+        check("Object embedding loaded",1'b1);
 
         // ── Step 3: Write n_objects = 2 ───────────────────────────────────
         // n_objects at word 1 (0x04), bytes 0 and 1
         $display("[TB] Step 3: Writing n_objects=2...");
         axi_write(9'h004, 32'h00000001, 4'h3);  // bytes 0,1 only
-
+        check("n_objects loaded",1'b1);
         // ── Step 4: Write confidence for object 0 ─────────────────────────
         // confidence at word 2 (0x08), bytes 0 and 1
         // conf0 = 13107 = 0x3333
         $display("[TB] Step 4: Writing confidence=13107...");
         axi_write(9'h008, 32'h00003333, 4'h3);
-
+        check("Confidence loaded",1'b1);
         // ── Step 5: Write boost + penalty for object 0 ────────────────────
         // boost at word 3 (0x0C), bytes 0 and 1
         // penalty at byte 3 of word 3
         // boost0 = 4096 = 0x1000, penalty = 0
         $display("[TB] Step 5: Writing boost=4096, penalty=0...");
         axi_write(9'h00C, 32'h00001000, 4'hF);
-
+        check("Boost and penalty loaded",1'b1);
         // ── Step 6: Assert start (word 0, bit 0) ──────────────────────────
         $display("[TB] Step 6: Asserting start...");
         axi_write(9'h000, 32'h00000001, 4'h1);  // byte 0 only
@@ -390,7 +419,7 @@ end
         axi_write(9'h00C, 32'h00000666, 4'hF);*/
 
         // ── Step 8: Poll done register (0x28) ─────────────────────────────
-        $display("[TB] Step 8: Polling done at 0x028...");
+        $display("[TB] Step 7: Polling done at 0x028...");
         timeout = 0;
         rb_done = 32'd0;
         while (rb_done[0] !== 1'b1 && timeout < 5000) begin
@@ -404,10 +433,10 @@ end
             $display("[TB]     Check: FSM reset polarity, emd_signal, done_reg mux");
             $finish;
         end
-        $display("[TB] done=1 after ~%0d polls", timeout);
+        check("Accelerator completed",rb_done[0]);
 
         // ── Step 9: Read results ──────────────────────────────────────────
-        $display("[TB] Step 9: Reading best_score (0x020) and best_object (0x024)...");
+        $display("[TB] Step 8: Reading best_score (0x020) and best_object (0x024)...");
         axi_read(9'h020, rb_object);
         axi_read(9'h024, rb_score);
 
@@ -415,28 +444,40 @@ end
         $display("----------------------------------------------------------");
         $display(" RESULTS");
         $display("----------------------------------------------------------");
-        $display(" best_object = %0d  (expected %0d)",
-                  rb_object[15:0], EXPECTED_BEST_OBJECT);
-        $display(" best_score  = %0d  (expected %0d)",
-                  $signed(rb_score), $signed(EXPECTED_BEST_SCORE));
-        $display("----------------------------------------------------------");
+        check("Best object",
+      rb_object[15:0]==EXPECTED_BEST_OBJECT);
 
-        if (rb_object[15:0] == EXPECTED_BEST_OBJECT)
-            $display(" [PASS] best_object CORRECT");
+        check("Best score",
+              $signed(rb_score)==EXPECTED_BEST_SCORE);
+        
+        $display("");
+        $display("============================================================");
+        $display("                 VERIFICATION SUMMARY");
+        $display("============================================================");
+        
+        $display("Expected Object : %0d",EXPECTED_BEST_OBJECT);
+        $display("Observed Object : %0d",rb_object[15:0]);
+        
+        $display("");
+        
+        $display("Expected Score  : %0d",$signed(EXPECTED_BEST_SCORE));
+        $display("Observed Score  : %0d",$signed(rb_score));
+        
+        $display("");
+        
+        $display("Total Tests : %0d",pass_cnt+fail_cnt);
+        $display("Passed      : %0d",pass_cnt);
+        $display("Failed      : %0d",fail_cnt);
+        
+        if(fail_cnt==0)
+            $display("STATUS      : PASS");
         else
-            $display(" [FAIL] best_object WRONG - got %0d expected %0d",
-                      rb_object[15:0], EXPECTED_BEST_OBJECT);
-
-        if ($signed(rb_score) == $signed(EXPECTED_BEST_SCORE))
-            $display(" [PASS] best_score CORRECT");
-        else
-            $display(" [FAIL] best_score WRONG - got %0d expected %0d",
-                      $signed(rb_score), $signed(EXPECTED_BEST_SCORE));
-
-        $display("==========================================================");
-        $stop;
-    end
-
+            $display("STATUS      : FAIL");
+        
+        $display("============================================================");
+        
+        $finish;
+end
     // ─── Global Timeout ───────────────────────────────────────────────────
     initial begin
         #10000000;
