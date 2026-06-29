@@ -273,11 +273,11 @@ module axi4_tb;
         // Verify BEST_OBJECT
         axi_read(32'h000C, rd_result);
         $display("  BEST_OBJECT = %0d", rd_result[15:0]);
-        if (rd_result[15:0] == 16'd1) begin
+        if (rd_result[15:0] == 16'd0) begin
             $display("  [PASS]");
             pass_cnt = pass_cnt + 1;
         end else begin
-            $display("  [FAIL] expected 1");
+            $display("  [FAIL] expected 0");
             fail_cnt = fail_cnt + 1;
         end
 

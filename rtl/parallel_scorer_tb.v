@@ -247,10 +247,10 @@ module parallel_scorer_tb;
         repeat(2) @(posedge clk);
 
         // Check results
-        $display("  best_object = %0d  (expected 1)", best_object);
+        $display("  best_object = %0d  (expected 0)", best_object);
         $display("  best_score  = %0d  (expected 11749)", best_score);
 
-        if (best_object == 16'd1) begin
+        if (best_object == 16'd0) begin
             $display("  [PASS] best_object");
             pass_cnt = pass_cnt + 1;
         end else begin

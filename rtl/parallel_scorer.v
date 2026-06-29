@@ -320,6 +320,16 @@ module parallel_scorer #(
 
                 // ─── Reduce: update running best ─────────────
                 PS_REDUCE: begin
+                    `ifdef SIMULATION
+                    $display("[DEBUG REDUCE] batch_base=%0d n_active=%0d", batch_base, n_active);
+                    for (ri = 0; ri < N_LANES; ri = ri + 1) begin
+                        $display("  Lane %0d: obj_id=%0d score=%0d conf=%0d boost=%0d pen=%0d",
+                                 ri, lane_obj_id[ri], $signed(lane_score[ri]),
+                                 $signed(lane_conf[ri]), $signed(lane_boost[ri]), lane_penalty[ri]);
+                    end
+                    $display("  batch_max_obj=%0d batch_max_score=%0d", batch_max_obj, $signed(batch_max_score));
+                    `endif
+
                     if ($signed(batch_max_score) >= $signed(run_best_score)) begin
                         run_best_score <= batch_max_score;
                         run_best_obj   <= batch_max_obj;
