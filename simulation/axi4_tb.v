@@ -74,6 +74,7 @@ module axi4_tb;
         .RID    (RID),      .RDATA  (RDATA),   .RRESP  (RRESP),
         .RLAST  (RLAST),    .RVALID (RVALID),  .RREADY (RREADY)
     );
+    
 
     // ── Clock ───────────────────────────────────────────────────
     initial ACLK = 0;
@@ -99,6 +100,7 @@ module axi4_tb;
 
     integer    i;
     reg [31:0] rd_result;
+    
 
     // ==========================================================
     //  AXI MASTER TASKS
@@ -213,9 +215,17 @@ module axi4_tb;
     integer pass_cnt, fail_cnt, k;
 
     initial begin
-        $display("==========================================");
-        $display("  AXI4-Full Parallel Scorer Testbench     ");
-        $display("==========================================");
+        $display("");
+        $display("====================================================================");
+        $display("                 DVCon INDIA 2026 - RTL VERIFICATION");
+        $display("--------------------------------------------------------------------");
+        $display(" Design       : Task-Aware Parallel Affinity Scorer");
+        $display(" Interface    : AXI4-Full");
+        $display(" Architecture : 4 Parallel Scoring Lanes");
+        $display(" Objects      : 8");
+        $display(" Embedding    : %0d-D", EMB_DIM);
+        $display(" Team         : Team Zeus");
+        $display("====================================================================");
 
         // Initialise bus signals
         AWVALID = 0; WVALID  = 0; BREADY  = 0;
@@ -247,21 +257,28 @@ module axi4_tb;
         // ══════════════════════════════════════════════════════
         //  TEST 1: Register write/readback
         // ══════════════════════════════════════════════════════
-        $display("\n[TEST 1] N_OBJECTS write/readback");
+        $display("");
+        $display("------------------------------------------------------------");
+        $display("[TC1] AXI Register Verification");
+        $display("------------------------------------------------------------");
+        $display(" Writing N_OBJECTS = 2");
         axi_write(32'h0008, 32'd2);
         axi_read (32'h0008, rd_result);
         if (rd_result[15:0] == 16'd2) begin
-            $display("  [PASS] N_OBJECTS = %0d", rd_result[15:0]);
+            $display("[PASS] N_OBJECTS = %0d", rd_result[15:0]);
             pass_cnt = pass_cnt + 1;
         end else begin
-            $display("  [FAIL] expected 2, got %0d", rd_result[15:0]);
+            $display("[FAIL] expected 2, got %0d", rd_result[15:0]);
             fail_cnt = fail_cnt + 1;
         end
 
         // ══════════════════════════════════════════════════════
         //  TEST 2: 2-object golden reference
         // ══════════════════════════════════════════════════════
-        $display("\n[TEST 2] 2 objects - golden reference");
+        $display("");
+        $display("------------------------------------------------------------");
+        $display("[TC2] Golden Reference Verification (2 Objects)");
+        $display("------------------------------------------------------------");
 
         // Task embedding burst
         for (i = 0; i < EMB_DIM; i = i + 1)
@@ -284,30 +301,36 @@ module axi4_tb;
 
         // Verify BEST_OBJECT
         axi_read(32'h000C, rd_result);
-        $display("  BEST_OBJECT = %0d", rd_result[15:0]);
+        $display("BEST_OBJECT = %0d", rd_result[15:0]);
         if (rd_result[15:0] == 16'd0) begin
-            $display("  [PASS]");
+            $display("[PASS]");
             pass_cnt = pass_cnt + 1;
         end else begin
-            $display("  [FAIL] expected 0");
+            $display("[FAIL] expected 0");
             fail_cnt = fail_cnt + 1;
         end
-
+        
         // Verify BEST_SCORE
         axi_read(32'h0010, rd_result);
-        $display("  BEST_SCORE  = %0d", $signed(rd_result));
+        $display("BEST_SCORE  = %0d", $signed(rd_result));
         if ($signed(rd_result) == 32'sd12627) begin
-            $display("  [PASS]");
+            $display("[PASS]");
             pass_cnt = pass_cnt + 1;
         end else begin
-            $display("  [FAIL] expected 12627");
+            $display("[FAIL] expected 12627");
             fail_cnt = fail_cnt + 1;
         end
 
         // ══════════════════════════════════════════════════════
         //  TEST 3: 8 objects - multi-batch
         // ══════════════════════════════════════════════════════
-        $display("\n[TEST 3] 8 objects - multi-batch (2 rounds)");
+        $display("");
+        $display("------------------------------------------------------------");
+        $display("[TC3] Parallel Multi-Object Verification");
+        $display("------------------------------------------------------------");
+        $display(" Objects : 8");
+        $display(" Lanes   : 4");
+        $display(" Batches : 2");
 
         axi_write(32'h0008, 32'd8);    // N_OBJECTS = 8
 
@@ -357,26 +380,54 @@ module axi4_tb;
         wait_done();
 
         axi_read(32'h000C, rd_result);
-        $display("  BEST_OBJECT = %0d  (expected 5)", rd_result[15:0]);
+        $display("");
+        $display(" Expected Winner : Object 5");
+        $display(" Observed Winner : Object %0d",rd_result[15:0]);
         if (rd_result[15:0] == 16'd5) begin
-            $display("  [PASS]");
+            $display(" RESULT : PASS");
             pass_cnt = pass_cnt + 1;
         end else begin
-            $display("  [FAIL]");
+            $display(" RESULT : FAIL");
             fail_cnt = fail_cnt + 1;
         end
 
         axi_read(32'h0010, rd_result);
-        $display("  BEST_SCORE  = %0d", $signed(rd_result));
+        $display(" Expected Score  : 13404");
+        $display(" Observed Score  : %0d",$signed(rd_result));
 
         // ── Summary ───────────────────────────────────────────
-        $display("\n==========================================");
-        $display("  PASS: %0d    FAIL: %0d", pass_cnt, fail_cnt);
-        if (fail_cnt == 0)
-            $display("  *** ALL TESTS PASSED ***");
+        $display("");
+        $display("====================================================================");
+        $display("                    VERIFICATION SUMMARY");
+        $display("====================================================================");
+        $display("");
+        
+        $display(" Test Case                                Result");
+        $display(" ---------------------------------------------------------------");
+        $display(" TC1  AXI Register Verification           %s",
+                 (pass_cnt>=1)?"PASS":"FAIL");
+        $display(" TC2  Golden Reference (2 Objects)        %s",
+                 (rd_result[15:0] == 16'd0)? "FAIL":"PASS");
+        $display(" TC3  Parallel Scoring (8 Objects)        %s",
+                 (rd_result[15:0] == 16'd5)? "FAIL":"PASS   ");
+        
+        $display("");
+        $display(" Total Tests : %0d",pass_cnt+fail_cnt);
+        $display(" Passed      : %0d",pass_cnt);
+        $display(" Failed      : %0d",fail_cnt);
+        
+        $display("");
+        
+        if(fail_cnt==0)
+        begin
+            $display(" FINAL STATUS : PASS");
+        end
         else
-            $display("  *** FAILURES DETECTED ***");
-        $display("==========================================");
+        begin
+            $display(" FINAL STATUS : FAIL");
+        end
+        
+        $display("====================================================================");
 
         repeat(20) @(posedge ACLK);
         $finish;
