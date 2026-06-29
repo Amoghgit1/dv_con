@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 module affinity_scorer_top #(
-    parameter EMB_DIM = 8
+    parameter EMB_DIM = 8               //Change to 512 if needed
 )(
     input  wire        axi_clk,
     input  wire        axi_reset_n,
