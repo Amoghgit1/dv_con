@@ -97,7 +97,18 @@ module axi4_tb;
     reg [7:0]  obj_mem6 [0:EMB_DIM-1];
     reg [7:0]  obj_mem7 [0:EMB_DIM-1];
     reg [31:0] burst_buf[0:EMB_DIM-1];
+    reg [31:0] golden_ref [0:3];
+    reg [31:0] conf_mem    [0:7];
+    reg [31:0] boost_mem   [0:7];
+    reg [31:0] penalty_mem [0:7];
+    
 
+    
+    localparam GOLD_OBJ2   = 0;
+    localparam GOLD_SCORE2 = 1;
+    localparam GOLD_OBJ8   = 2;
+    localparam GOLD_SCORE8 = 3; 
+    
     integer    i;
     reg [31:0] rd_result;
     reg tc1_pass;
@@ -256,7 +267,17 @@ module axi4_tb;
         $readmemh("obj_emb_5.hex", obj_mem5);
         $readmemh("obj_emb_6.hex", obj_mem6);
         $readmemh("obj_emb_7.hex", obj_mem7);
-
+        $readmemh("golden_reference.hex", golden_ref);
+        $readmemh("conf.hex", conf_mem);
+        $readmemh("boost.hex", boost_mem);
+        $readmemh("penalty.hex", penalty_mem);
+        
+        $display("\nLoaded Golden Reference");
+        $display(" TC2 Object = %0d", golden_ref[GOLD_OBJ2]);
+        $display(" TC2 Score  = %0d", $signed(golden_ref[GOLD_SCORE2]));
+        $display(" TC3 Object = %0d", golden_ref[GOLD_OBJ8]);
+        $display(" TC3 Score  = %0d", $signed(golden_ref[GOLD_SCORE8]));
+        
         // ── Reset ────────────────────────────────────────────
         repeat(10) @(posedge ACLK);
         ARESETn = 1;
@@ -298,12 +319,12 @@ module axi4_tb;
         // Object 0
         for (i = 0; i < EMB_DIM; i = i + 1)
             burst_buf[i] = {24'h0, obj_mem0[i]};
-        programme_object(0, 32'd13107, 32'd4096, 32'h0);
+        programme_object(0, conf_mem[0], boost_mem[0], penalty_mem[0]);
 
         // Object 1
         for (i = 0; i < EMB_DIM; i = i + 1)
             burst_buf[i] = {24'h0, obj_mem1[i]};
-        programme_object(1, 32'd11796, 32'd1638, 32'h0);
+        programme_object(1, conf_mem[1], boost_mem[1], penalty_mem[1]);
 
         // Start
         axi_write(32'h0000, 32'h1);
@@ -312,24 +333,25 @@ module axi4_tb;
         // Verify BEST_OBJECT
         axi_read(32'h000C, rd_result);
         $display("BEST_OBJECT = %0d", rd_result[15:0]);
-        if (rd_result[15:0] == 16'd0) begin
+        if (rd_result[15:0] == golden_ref[GOLD_OBJ2][15:0]) begin
             tc2_pass = 1'b1;
             $display("[PASS]");
             pass_cnt = pass_cnt + 1;
         end else begin
             tc2_pass = 1'b0;
-            $display("[FAIL] expected 0");
+            $display("[FAIL] expected %0d",golden_ref[GOLD_OBJ2][15:0]);
             fail_cnt = fail_cnt + 1;
         end
         
         // Verify BEST_SCORE
         axi_read(32'h0010, rd_result);
         $display("BEST_SCORE  = %0d", $signed(rd_result));
-        if ($signed(rd_result) == 32'sd12627) begin
+        if ($signed(rd_result) == $signed(golden_ref[GOLD_SCORE2])) begin
             $display("[PASS]");
             pass_cnt = pass_cnt + 1;
         end else begin
-            $display("[FAIL] expected 12627");
+            $display("[FAIL] expected %0d",
+         $signed(golden_ref[GOLD_SCORE2]));
             fail_cnt = fail_cnt + 1;
         end
 
@@ -349,42 +371,42 @@ module axi4_tb;
         // ---------------- Object 0 ----------------
         for(i=0;i<EMB_DIM;i=i+1)
             burst_buf[i]={24'h0,obj_mem0[i]};
-        programme_object(0,32'd13107,32'd4096,32'h0);
+        programme_object(0,conf_mem[0],boost_mem[0],penalty_mem[0]);
         
         // ---------------- Object 1 ----------------
         for(i=0;i<EMB_DIM;i=i+1)
             burst_buf[i]={24'h0,obj_mem1[i]};
-        programme_object(1,32'd11796,32'd1638,32'h0);
+        programme_object(1,conf_mem[1],boost_mem[1],penalty_mem[1]);
         
         // ---------------- Object 2 ----------------
         for(i=0;i<EMB_DIM;i=i+1)
             burst_buf[i]={24'h0,obj_mem2[i]};
-        programme_object(2,32'd12451,32'd2949,32'h0);
+        programme_object(2,conf_mem[2],boost_mem[2],penalty_mem[2]);
         
         // ---------------- Object 3 ----------------
         for(i=0;i<EMB_DIM;i=i+1)
             burst_buf[i]={24'h0,obj_mem3[i]};
-        programme_object(3,32'd9994,32'd819,32'h0);
+        programme_object(3,conf_mem[3],boost_mem[3],penalty_mem[3]);
         
         // ---------------- Object 4 ----------------
         for(i=0;i<EMB_DIM;i=i+1)
             burst_buf[i]={24'h0,obj_mem4[i]};
-        programme_object(4,32'd11141,32'd1966,32'h0);
+        programme_object(4,conf_mem[4],boost_mem[4],penalty_mem[4]);
         
         // ---------------- Object 5 ----------------
         for(i=0;i<EMB_DIM;i=i+1)
             burst_buf[i]={24'h0,obj_mem5[i]};
-        programme_object(5,32'd14909,32'd4915,32'h0);
+        programme_object(5,conf_mem[5],boost_mem[5],penalty_mem[5]);
         
         // ---------------- Object 6 ----------------
         for(i=0;i<EMB_DIM;i=i+1)
             burst_buf[i]={24'h0,obj_mem6[i]};
-        programme_object(6,32'd9502,32'd1310,32'h0);
+        programme_object(6,conf_mem[6],boost_mem[6],penalty_mem[6]);
         
         // ---------------- Object 7 ----------------
         for(i=0;i<EMB_DIM;i=i+1)
             burst_buf[i]={24'h0,obj_mem7[i]};
-        programme_object(7,32'd12124,32'd2457,32'h0);
+        programme_object(7,conf_mem[7],boost_mem[7],penalty_mem[7]);
 
     
         // Start
@@ -393,9 +415,9 @@ module axi4_tb;
 
         axi_read(32'h000C, rd_result);
         $display("");
-        $display(" Expected Winner : Object 5");
+        $display(" Expected Winner : Object %0d",golden_ref[GOLD_OBJ8]);
         $display(" Observed Winner : Object %0d",rd_result[15:0]);
-        if (rd_result[15:0] == 16'd5) begin
+        if (rd_result[15:0] == golden_ref[GOLD_OBJ8][15:0]) begin
             tc3_pass = 1'b1;
             $display(" RESULT : PASS");
             pass_cnt = pass_cnt + 1;
@@ -406,8 +428,18 @@ module axi4_tb;
         end
 
         axi_read(32'h0010, rd_result);
-        $display(" Expected Score  : 13404");
-        $display(" Observed Score  : %0d",$signed(rd_result));
+
+        $display(" Expected Score  : %0d",$signed(golden_ref[GOLD_SCORE8]));
+        $display(" Observed Score  : %0d", $signed(rd_result));
+        
+        if ($signed(rd_result) == $signed(golden_ref[GOLD_SCORE8])) begin
+    $display(" RESULT : PASS");
+    pass_cnt = pass_cnt + 1;
+end
+else begin
+    $display(" RESULT : FAIL");
+    fail_cnt = fail_cnt + 1;
+end
 
         // ── Summary ───────────────────────────────────────────
         $display("");
