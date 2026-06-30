@@ -100,7 +100,14 @@ module axi4_tb;
 
     integer    i;
     reg [31:0] rd_result;
-    
+    reg tc1_pass;
+    reg tc2_pass;
+    reg tc3_pass;
+    initial begin 
+        tc1_pass = 1'b0;
+        tc2_pass = 1'b0;
+        tc3_pass = 1'b0;
+    end
 
     // ==========================================================
     //  AXI MASTER TASKS
@@ -239,8 +246,9 @@ module axi4_tb;
         pass_cnt = 0; fail_cnt = 0;
 
         // Load hex files
-        $readmemh("task_emb.hex",  task_mem);
-        $readmemh("obj_emb_0.hex", obj_mem0);
+        
+        $readmemh("task_emb.hex", task_mem);
+        $readmemh("obj_emb_0.hex",obj_mem0);
         $readmemh("obj_emb_1.hex", obj_mem1);
         $readmemh("obj_emb_2.hex", obj_mem2);
         $readmemh("obj_emb_3.hex", obj_mem3);
@@ -265,9 +273,11 @@ module axi4_tb;
         axi_write(32'h0008, 32'd2);
         axi_read (32'h0008, rd_result);
         if (rd_result[15:0] == 16'd2) begin
+            tc1_pass = 1'b1;
             $display("[PASS] N_OBJECTS = %0d", rd_result[15:0]);
             pass_cnt = pass_cnt + 1;
         end else begin
+            tc1_pass = 1'b0;
             $display("[FAIL] expected 2, got %0d", rd_result[15:0]);
             fail_cnt = fail_cnt + 1;
         end
@@ -303,9 +313,11 @@ module axi4_tb;
         axi_read(32'h000C, rd_result);
         $display("BEST_OBJECT = %0d", rd_result[15:0]);
         if (rd_result[15:0] == 16'd0) begin
+            tc2_pass = 1'b1;
             $display("[PASS]");
             pass_cnt = pass_cnt + 1;
         end else begin
+            tc2_pass = 1'b0;
             $display("[FAIL] expected 0");
             fail_cnt = fail_cnt + 1;
         end
@@ -384,9 +396,11 @@ module axi4_tb;
         $display(" Expected Winner : Object 5");
         $display(" Observed Winner : Object %0d",rd_result[15:0]);
         if (rd_result[15:0] == 16'd5) begin
+            tc3_pass = 1'b1;
             $display(" RESULT : PASS");
             pass_cnt = pass_cnt + 1;
         end else begin
+            tc3_pass = 1'b0;
             $display(" RESULT : FAIL");
             fail_cnt = fail_cnt + 1;
         end
@@ -407,9 +421,9 @@ module axi4_tb;
         $display(" TC1  AXI Register Verification           %s",
                  (pass_cnt>=1)?"PASS":"FAIL");
         $display(" TC2  Golden Reference (2 Objects)        %s",
-                 (rd_result[15:0] == 16'd0)? "FAIL":"PASS");
+                 (tc2_pass == 1'b1)? "PASS":"FAIL");
         $display(" TC3  Parallel Scoring (8 Objects)        %s",
-                 (rd_result[15:0] == 16'd5)? "FAIL":"PASS   ");
+                 (tc3_pass == 1'b1)? "PASS":"FAIL");
         
         $display("");
         $display(" Total Tests : %0d",pass_cnt+fail_cnt);
